@@ -8,7 +8,7 @@
 // @description:zh-TW 5278 show m3u8 address
 // @include     https://5278.cc/thread-*-1-1.html
 // @include     https://hbo6.hboav.com/v4/public/Player.php?*
-// @version     1.02
+// @version     1.03
 // @run-at      document-end
 // @author      zhuzemin
 // @license     Mozilla Public License 2.0; http://www.mozilla.org/MPL/2.0/
@@ -62,7 +62,7 @@ let init = function () {
         //let url = script.innerHTML.match(/ /)[1];
         let url = unsafeWindow.player.src();
         debug(url);
-        parent.postMessage(url, "*");
+        setInterval(()=>{parent.postMessage(url, "*");},4000);
         clearInterval(interval);
       }
     }, 1000);
