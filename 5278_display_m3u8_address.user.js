@@ -8,7 +8,7 @@
 // @description:zh-TW 5278 show m3u8 address
 // @include     https://5278.cc/thread-*-1-1.html
 // @include     https://hbo6.hboav.com/v4/public/Player.php?*
-// @version     1.03
+// @version     1.04
 // @run-at      document-end
 // @author      zhuzemin
 // @license     Mozilla Public License 2.0; http://www.mozilla.org/MPL/2.0/
@@ -19,7 +19,7 @@
 // ==/UserScript==
 let config = {
   'debug': false,
-  'version': GM_getValue('version') || '2.9.3'
+  'version': GM_getValue('version') || '2.9.9'
 };
 let debug = config.debug ? console.log.bind(console) : function () {
 };
@@ -32,24 +32,35 @@ setUserPref(
 );
 let init = function () {
   if (window.self === window.top) {
-    let input = document.createElement("input");
-    input.setAttribute("type", "text");
-    input.size = window.screen.width;
-    document.body.insertBefore(input, document.body.firstChild);
-    let N_m3u8DL = document.createElement("input");
-    N_m3u8DL.setAttribute("type", "text");
-    N_m3u8DL.size = window.screen.width;
-    document.body.insertBefore(N_m3u8DL, document.body.firstChild);
+    // let input = document.createElement("input");
+    // input.setAttribute("type", "text");
+    // input.size = window.screen.width;
+    // document.body.insertBefore(input, document.body.firstChild);
     let title = document.title.replace(' - 成人線上直播一區 - 5278 / 5278論壇 / 我愛78論壇', '');
     let iframe = document.querySelector("iframe.cc5278_player");
     let src = iframe.getAttribute("src");
     let hostname = getLocation(src).hostname;
     debug(hostname);
+    let idx = 1;
+    let urlLst = [];
     window.addEventListener('message', function (e) {
       if (e.data.includes('hboav.com')) {
         debug(e.data);
-        N_m3u8DL.setAttribute("value", 'N_m3u8DL-CLI_v' + config.version + ' "' + e.data + '" --headers "Referer:' + src + '"  --saveName "' + title + '"');
-        input.setAttribute("value", e.data);
+        if (!urlLst.includes(e.data)) {
+          debug(urlLst);
+          urlLst.push(e.data);
+          let fullTitle = title;
+          if (urlLst.length > 1) {
+            idx++;
+            fullTitle += "_" + idx;
+          }
+          let N_m3u8DL = document.createElement("input");
+          N_m3u8DL.setAttribute("type", "text");
+          N_m3u8DL.size = window.screen.width;
+          document.body.insertBefore(N_m3u8DL, document.body.firstChild);
+          N_m3u8DL.setAttribute("value", 'N_m3u8DL-CLI_v' + config.version + ' "' + e.data + '" --headers "Referer:' + src + '"  --saveName "' + fullTitle + '"');
+          // input.setAttribute("value", e.data);
+        }
       }
     });
   }
@@ -62,7 +73,7 @@ let init = function () {
         //let url = script.innerHTML.match(/ /)[1];
         let url = unsafeWindow.player.src();
         debug(url);
-        setInterval(()=>{parent.postMessage(url, "*");},4000);
+        setInterval(() => { parent.postMessage(url, "*"); }, 4000);
         clearInterval(interval);
       }
     }, 1000);
